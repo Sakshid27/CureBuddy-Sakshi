@@ -78,33 +78,76 @@ exports.signup = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
+  console.log("🔥 LOGIN HIT");
+  console.log(req.body);
 
-  if (!email || !password)
-    return res.status(400).json({ success: false, message: "Email and password required" });
+  const { email, password, role } = req.body;
 
   try {
+
+    // TEMP ADMIN LOGIN
+    if (
+      email === "admin@example.com" &&
+      password === "admin123" 
+    ) {
+      return res.status(200).json({
+        success: true,
+        token: "admin-token",
+        role: "admin",
+        user: {
+          email: "admin@example.com",
+          role: "admin",
+          fullName: "Admin",
+        },
+      });
+    }
+
     const user = await User.findOne({ email });
-    if (!user)
-      return res.status(401).json({ success: false, message: "User not found" });
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      return res.status(401).json({ success: false, message: "Invalid credentials" });
 
-    const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
+
+    res.status(200).json({
+      success: true,
+      token,
+      role: user.role,
+      user,
     });
 
-    res.json({ success: true, token, role: user.role, userId: user._id });
   } catch (err) {
-    console.error("Login Error:", err);
-    res.status(500).json({ success: false, message: err.message });
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
-
 exports.forgotPassword = async (req, res) => {
   const { email } = req.body;
 

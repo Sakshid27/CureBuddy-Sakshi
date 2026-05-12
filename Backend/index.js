@@ -67,7 +67,7 @@ app.use('/api/appointments', appointmentRoutes);
 app.get('/', (_req, res) => res.send('✅ CureBuddy API is running...'));
 
 /* ──────────────────────────  START SERVER  ─────────────────────── */
-
+console.log(__dirname);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () =>
   console.log(`🚀 Server running at: http://localhost:${PORT}`)

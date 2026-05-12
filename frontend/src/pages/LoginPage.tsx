@@ -16,6 +16,8 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
 
     try {
+      console.log("API URL:", import.meta.env.VITE_API_URL);
+      console.log({ email, password, role });
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/auth/login`,
         {
@@ -26,6 +28,7 @@ const LoginPage: React.FC = () => {
       );
 
       const data = await response.json();
+      console.log("Response:", data);
 
       if (response.ok && data.token) {
         localStorage.setItem("token", data.token);

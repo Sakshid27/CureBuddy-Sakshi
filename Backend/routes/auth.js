@@ -317,21 +317,70 @@ router.post("/signup", async (req, res) => {
 });
 
 // ========== LOGIN ==========
+// ========== LOGIN ==========
 router.post("/login", async (req, res) => {
   const { email, password, role } = req.body;
 
   if (!email || !password || !role) {
-    return res.status(400).json({ success: false, message: "Email, password, and role are required" });
+    return res.status(400).json({
+      success: false,
+      message: "Email, password, and role are required"
+    });
   }
 
   try {
-    const user = await User.findOne({ email, role });
-    if (!user) return res.status(400).json({ success: false, message: "User not found with this role" });
 
-    if (!user.password) return res.status(400).json({ success: false, message: "Password not set" });
+    // ✅ ADMIN LOGIN
+    if (
+      role === "admin" &&
+      email === "admin@example.com" &&
+      password === "admin123"
+    ) {
+
+      const token = jwt.sign(
+        { id: "admin123", role: "admin" },
+        process.env.JWT_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      return res.status(200).json({
+        success: true,
+        token,
+        role: "admin",
+        user: {
+          _id: "admin123",
+          email: "admin@example.com",
+          role: "admin",
+          fullName: "Admin"
+        }
+      });
+    }
+
+    // NORMAL USER LOGIN
+    const user = await User.findOne({ email, role });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "User not found with this role"
+      });
+    }
+
+    if (!user.password) {
+      return res.status(400).json({
+        success: false,
+        message: "Password not set"
+      });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ success: false, message: "Invalid credentials" });
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid credentials"
+      });
+    }
 
     if (role === "doctor") {
       const doctorProfile = await DoctorProfile.findOne({ email });
@@ -339,14 +388,14 @@ router.post("/login", async (req, res) => {
       if (!doctorProfile) {
         return res.status(403).json({
           success: false,
-          message: "Doctor profile not found. Complete registration process."
+          message: "Doctor profile not found"
         });
       }
 
       if (doctorProfile.status !== "approved") {
         return res.status(403).json({
           success: false,
-          message: `Your profile is ${doctorProfile.status}. Please wait for admin approval.`
+          message: `Your profile is ${doctorProfile.status}`
         });
       }
     }
@@ -361,12 +410,17 @@ router.post("/login", async (req, res) => {
         _id: user._id,
         email: user.email,
         role: user.role,
-        fullName: user.fullName || user.name || "Patient",
+        fullName: user.fullName || "User"
       }
     });
+
   } catch (err) {
     console.error("Login Error:", err);
-    return res.status(500).json({ success: false, message: "Error logging in" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Error logging in"
+    });
   }
 });
 
