@@ -21,7 +21,7 @@ app.use(
   cors({
     origin: [
       'http://localhost:5173',           // Local frontend
-      'https://cure-buddy.vercel.app',   // Deployed frontend on Vercel
+      'https://cure-buddy-sakshi.vercel.app',   // Deployed frontend on Vercel
     ],
     credentials: true,
   })
