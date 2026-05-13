@@ -52,7 +52,7 @@ const Navbar: React.FC = () => {
   const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
 
   return (
-    <header className="relative z-50 flex items-center justify-between px-8 py-4 shadow-sm bg-white">
+    <header className="relative z-50 flex flex-col lg:flex-row lg:items-center lg:justify-between px-4 md:px-8 py-4 shadow-sm bg-white gap-4">
       {/* LOGO */}
       <Link to="/" className="flex items-center space-x-2 cursor-pointer">
         <img src="/Logo.png" alt="CureBuddy Logo" className="w-8 h-8" />
@@ -60,7 +60,7 @@ const Navbar: React.FC = () => {
       </Link>
 
       {/* NAV LINKS */}
-      <nav className="flex items-center gap-10 text-base font-medium text-gray-800">
+      <nav className="flex flex-wrap justify-center lg:justify-start items-center gap-4 lg:gap-8 text-sm md:text-base font-medium text-gray-800">
         <Link to="/" className="hover:text-indigo-600">HOME</Link>
         <Link to="/alldoctors" className="hover:text-indigo-600 whitespace-nowrap">ALL DOCTORS</Link>
         <Link to="/about" className="hover:text-indigo-600">ABOUT</Link>
@@ -97,7 +97,7 @@ const Navbar: React.FC = () => {
         <div className="relative user-dropdown">
           <button
             onClick={toggleDropdown}
-            className="bg-indigo-100 text-indigo-900 px-4 py-2 rounded-full text-sm font-semibold hover:bg-indigo-200 transition"
+            className="bg-indigo-100 text-indigo-900 px-3 py-2 rounded-full text-xs md:text-sm font-semibold hover:bg-indigo-200 transition whitespace-nowrap"
           >
             Hi, {username}
           </button>
@@ -133,7 +133,7 @@ const Navbar: React.FC = () => {
         </div>
       ) : (
         <button
-          className="bg-indigo-500 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-indigo-600 transition"
+          className="bg-indigo-500 text-white px-4 py-2 rounded-full text-xs md:text-sm font-semibold hover:bg-indigo-600 transition whitespace-nowrap"
           onClick={() => navigate("/login")}
         >
           Login / Sign up
