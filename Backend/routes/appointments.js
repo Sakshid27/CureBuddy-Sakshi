@@ -11,6 +11,7 @@ router.get("/", async (req, res) => {
     const appointments = await Appointment.find({
       doctorId,
       appointmentDate: date,
+       status: { $ne: "Cancelled" },
     });
 
     res.json({ success: true, appointments });
@@ -122,14 +123,15 @@ router.post("/book", authMiddleware(), async (req, res) => {
       doctorId,
       appointmentDate,
       appointmentTime,
+      status: { $ne: "Cancelled" },
     });
 
-    // if (alreadyBooked) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "This slot is already booked.",
-    //   });
-    // }
+    if (alreadyBooked) {
+      return res.status(400).json({
+        success: false,
+        message: "This slot is already booked.",
+      });
+    }
 
     const appointment = new Appointment({
       doctorId,

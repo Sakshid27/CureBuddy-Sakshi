@@ -33,6 +33,7 @@ const DoctorProfile: React.FC = () => {
   const [selectedTime, setSelectedTime] = useState("");
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -91,22 +92,30 @@ const DoctorProfile: React.FC = () => {
     return out;
   };
 
-  const handleBooking = async () => {
-    if (!selectedDate || !selectedTime) {
-      toast.error("Please select a date and time slot.");
-      return;
-    }
+const handleBooking = async () => {
 
-    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    const storedToken = localStorage.getItem("token");
+  if (bookingLoading) return;
 
-    if (!storedUser?._id || !storedToken) {
-      toast.error("Please login first to book an appointment.");
-      return;
-    }
+  if (!selectedDate || !selectedTime) {
+    toast.error("Please select a date and time slot.");
+    return;
+  }
 
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/appointments/book`, {
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const storedToken = localStorage.getItem("token");
+
+  if (!storedUser?._id || !storedToken) {
+    toast.error("Please login first to book an appointment.");
+    return;
+  }
+
+  try {
+
+    setBookingLoading(true);
+
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/appointments/book`,
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -122,21 +131,34 @@ const DoctorProfile: React.FC = () => {
           appointmentDate: selectedDate,
           appointmentTime: selectedTime,
         }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to book appointment");
       }
+    );
 
-      toast.success(" Appointment booked successfully!");
-      navigate("/patient/appointments");
-    } catch (error: any) {
-      console.error("❌ Booking error:", error);
-      toast.error(error.message || "Something went wrong while booking.");
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to book appointment");
     }
-  };
+
+    // instantly disable booked slot
+    setBookedSlots((prev) => [...prev, selectedTime]);
+
+    toast.success("Appointment booked successfully!");
+
+    navigate("/patient/appointments");
+
+  } catch (error: any) {
+
+    console.error("Booking error:", error);
+
+    toast.error(error.message || "Something went wrong while booking.");
+
+  } finally {
+
+    setBookingLoading(false);
+
+  }
+};
 
   if (!doctor) return <p className="p-8 text-center">Loading…</p>;
 
@@ -224,10 +246,10 @@ const DoctorProfile: React.FC = () => {
 
       <button
         onClick={handleBooking}
-        disabled={!selectedDate || !selectedTime}
+        disabled={!selectedDate || !selectedTime || bookingLoading}
         className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 disabled:opacity-50"
       >
-        Book Appointment
+        {bookingLoading ? "Booking..." : "Book Appointment"}
       </button>
     </div>
   );
