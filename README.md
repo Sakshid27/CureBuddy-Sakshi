@@ -2,7 +2,7 @@
 CureBuddy is a full-stack web application that connects patients with doctors and facilitates online appointments, profile management, and admin moderation.
 
 **🌐 Live Website**
-Frontend: https://cure-buddy.vercel.app
+Frontend: https://cure-buddy-sakshi.vercel.app
 
 **🚀 Tech Stack**
 
@@ -69,7 +69,7 @@ Create a .env file in frontend/:
 
 env
 
-VITE_API_URL=https://curebuddy-1-zgdm.onrender.com
+VITE_API_URL=https://curebuddy-backend-op5j.onrender.com
 
 Run the frontend locally:
 
